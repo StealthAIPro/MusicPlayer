@@ -3,41 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Purple Beat Music</title>
+    <title>Neon Pulse Music</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
 
     <header>
-        <div class="logo">PURPLE<span>BEAT</span></div>
+        <div class="logo">Stealth<span>Pro</span></div>
         <div class="search-box">
-            <input type="text" id="searchInput" placeholder="Search for artists, songs...">
+            <input type="text" id="searchInput" placeholder="Search artists or genres...">
             <button id="searchBtn"><i class="fas fa-search"></i></button>
         </div>
     </header>
 
     <main id="musicContainer">
-        <div class="loader-text">Search for your favorite tunes above!</div>
+        <div class="loader-text">Search for full tracks (e.g., "Rock", "Lofi")</div>
     </main>
 
     <footer class="player">
-        <div class="current-track">
-            <img id="trackArt" src="https://via.placeholder.com/50" alt="">
-            <div class="track-info">
-                <div id="trackTitle">No Song Selected</div>
-                <div id="trackArtist">Artist Name</div>
-            </div>
-        </div>
-        
-        <div class="controls">
-            <audio id="audioPlayer" src=""></audio>
-            <button id="playPauseBtn"><i class="fas fa-play"></i></button>
+        <div class="progress-container">
+            <span id="currentTime">0:00</span>
+            <input type="range" id="timeSlider" value="0" min="0" max="100">
+            <span id="durationTime">0:00</span>
         </div>
 
-        <div class="volume-container">
-            <i class="fas fa-volume-up"></i>
-            <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="0.5">
+        <div class="player-main">
+            <div class="current-track">
+                <img id="trackArt" src="https://via.placeholder.com/50" alt="">
+                <div class="track-info">
+                    <div id="trackTitle">Ready to Play</div>
+                    <div id="trackArtist">Select a song</div>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <audio id="audioPlayer"></audio>
+                <button id="playPauseBtn"><i class="fas fa-play"></i></button>
+            </div>
+
+            <div class="volume-container">
+                <i class="fas fa-volume-up"></i>
+                <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="0.5">
+            </div>
         </div>
     </footer>
 
