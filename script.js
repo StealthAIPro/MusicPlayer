@@ -1,24 +1,29 @@
-const CLIENT_ID = '56d30c95';
 const audioPlayer = document.getElementById('audioPlayer');
 const mainPlayer = document.getElementById('mainPlayer');
 const musicContainer = document.getElementById('musicContainer');
 const playPauseBtn = document.getElementById('playPauseBtn');
-const shuffleBtn = document.getElementById('shuffleBtn');
-const repeatBtn = document.getElementById('repeatBtn');
 
 let currentPlaylist = [];
+let currentIndex = 0;
 let isShuffle = false;
 let isRepeat = false;
 
+// 1. Search Logic using Deezer (via Proxy to prevent CORS errors)
 async function searchMusic(query) {
-    const url = `https://api.jamendo.com/v3.0/tracks/?client_id=${CLIENT_ID}&format=jsonpretty&limit=20&search=${encodeURIComponent(query)}`;
+    if (!query) return;
+    musicContainer.innerHTML = '<div class="loader-text">Searching the galaxy...</div>';
+
+    // This proxy helps bypass browser security blocks
+    const proxy = "https://corsproxy.io/?";
+    const url = `${proxy}${encodeURIComponent(`https://api.deezer.com/search?q=${query}`)}`;
+
     try {
         const res = await fetch(url);
         const data = await res.json();
-        currentPlaylist = data.results;
+        currentPlaylist = data.data;
         displayResults(currentPlaylist);
     } catch (e) {
-        musicContainer.innerHTML = '<div class="loader-text">API Error. Use USB mode!</div>';
+        musicContainer.innerHTML = '<div class="loader-text">Connection blocked. Use USB mode or try a different browser!</div>';
     }
 }
 
@@ -28,50 +33,64 @@ function displayResults(songs) {
         const card = document.createElement('div');
         card.className = 'song-card';
         card.innerHTML = `
-            <img src="${song.album_image || 'https://via.placeholder.com/200/222/bc13fe?text=USB'}" alt="cover">
-            <h4>${song.name}</h4>
-            <p>${song.artist_name}</p>
+            <img src="${song.album.cover_medium}" alt="cover">
+            <h4 style="margin:10px 0 5px; font-size:14px; white-space:nowrap; overflow:hidden;">${song.title}</h4>
+            <p style="color:#888; font-size:12px;">${song.artist.name}</p>
         `;
-        card.onclick = () => playSong(song, index);
+        card.onclick = () => playSong(index);
         musicContainer.appendChild(card);
     });
 }
 
-function playSong(song, index) {
-    mainPlayer.classList.add('active');
-    audioPlayer.src = song.audio || song.preview;
-    document.getElementById('trackArt').src = song.album_image || 'https://via.placeholder.com/200/222/bc13fe?text=USB';
-    document.getElementById('trackTitle').innerText = song.name;
-    document.getElementById('trackArtist').innerText = song.artist_name;
-    document.getElementById('downloadBtn').href = song.audio;
+function playSong(index) {
+    currentIndex = index;
+    const song = currentPlaylist[currentIndex];
     
+    mainPlayer.classList.add('active');
+    audioPlayer.src = song.preview; // Deezer provides 30s high-quality previews
+    
+    document.getElementById('trackArt').src = song.album.cover_small;
+    document.getElementById('trackTitle').innerText = song.title;
+    document.getElementById('trackArtist').innerText = song.artist.name;
+    document.getElementById('downloadBtn').href = song.link;
+
     audioPlayer.play();
     playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
 }
 
-// Shuffle & Repeat Toggles
-shuffleBtn.onclick = () => {
+// 2. Controls (Shuffle & Repeat)
+document.getElementById('shuffleBtn').onclick = (e) => {
     isShuffle = !isShuffle;
-    shuffleBtn.classList.toggle('toggle-active', isShuffle);
+    e.currentTarget.classList.toggle('toggle-active', isShuffle);
 };
 
-repeatBtn.onclick = () => {
+document.getElementById('repeatBtn').onclick = (e) => {
     isRepeat = !isRepeat;
-    repeatBtn.classList.toggle('toggle-active', isRepeat);
+    e.currentTarget.classList.toggle('toggle-active', isRepeat);
 };
 
-// Handle Song Ending
 audioPlayer.onended = () => {
     if (isRepeat) {
         audioPlayer.play();
-    } else if (isShuffle) {
-        const randomIndex = Math.floor(Math.random() * currentPlaylist.length);
-        playSong(currentPlaylist[randomIndex], randomIndex);
+    } else {
+        let nextIndex = isShuffle ? Math.floor(Math.random() * currentPlaylist.length) : currentIndex + 1;
+        if (nextIndex < currentPlaylist.length) playSong(nextIndex);
     }
-    // Else: Stop or play next (can be added)
 };
 
-// Standard Controls
+// 3. USB Upload Logic
+document.getElementById('fileUpload').onchange = (e) => {
+    const files = Array.from(e.target.files);
+    currentPlaylist = files.map(file => ({
+        title: file.name.replace('.mp3', ''),
+        artist: { name: "Local File" },
+        album: { cover_medium: "https://via.placeholder.com/200/222/bc13fe?text=USB" },
+        preview: URL.createObjectURL(file)
+    }));
+    displayResults(currentPlaylist);
+};
+
+// Player Mechanics
 playPauseBtn.onclick = () => {
     if (audioPlayer.paused) {
         audioPlayer.play();
@@ -82,15 +101,15 @@ playPauseBtn.onclick = () => {
     }
 };
 
-document.getElementById('timeSlider').oninput = (e) => {
-    audioPlayer.currentTime = (e.target.value / 100) * audioPlayer.duration;
-};
-
 audioPlayer.ontimeupdate = () => {
     const prog = (audioPlayer.currentTime / audioPlayer.duration) * 100;
     document.getElementById('timeSlider').value = prog || 0;
     document.getElementById('currentTime').innerText = formatTime(audioPlayer.currentTime);
     document.getElementById('durationTime').innerText = formatTime(audioPlayer.duration || 0);
+};
+
+document.getElementById('timeSlider').oninput = (e) => {
+    audioPlayer.currentTime = (e.target.value / 100) * audioPlayer.duration;
 };
 
 function formatTime(s) {
@@ -100,14 +119,4 @@ function formatTime(s) {
 }
 
 document.getElementById('searchBtn').onclick = () => searchMusic(document.getElementById('searchInput').value);
-
-// USB Upload
-document.getElementById('fileUpload').onchange = (e) => {
-    const files = Array.from(e.target.files);
-    currentPlaylist = files.map(file => ({
-        name: file.name.replace('.mp3', ''),
-        artist_name: "Local USB",
-        audio: URL.createObjectURL(file)
-    }));
-    displayResults(currentPlaylist);
-};
+document.getElementById('volumeSlider').oninput = (e) => audioPlayer.volume = e.target.value;
