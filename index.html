@@ -12,7 +12,7 @@
     <header>
         <div class="logo">PURPLE<span>PULSE</span></div>
         <div class="search-box">
-            <input type="text" id="searchInput" placeholder="Search artists or genres...">
+            <input type="text" id="searchInput" placeholder="Try 'Lofi' or 'Rock'...">
             <button id="searchBtn"><i class="fas fa-search"></i></button>
             <label for="fileUpload" class="usb-btn">
                 <i class="fas fa-usb"></i> USB
@@ -27,9 +27,10 @@
     </nav>
 
     <main id="musicContainer">
-        </main>
+        <div class="loader-text">Loading the nebula...</div>
+    </main>
 
-    <footer class="player">
+    <footer class="player hidden" id="mainPlayer">
         <div class="progress-area">
             <span id="currentTime">0:00</span>
             <input type="range" id="timeSlider" value="0" min="0" max="100">
@@ -38,7 +39,7 @@
 
         <div class="controls-container">
             <div class="track-details">
-                <img id="trackArt" src="https://via.placeholder.com/50/222/bc13fe?text=?" alt="">
+                <img id="trackArt" src="" alt="">
                 <div class="text">
                     <div id="trackTitle">Nothing Playing</div>
                     <div id="trackArtist">Select a track</div>
@@ -48,6 +49,9 @@
             <div class="main-controls">
                 <audio id="audioPlayer"></audio>
                 <button id="playPauseBtn"><i class="fas fa-play"></i></button>
+                <a id="downloadBtn" href="#" download class="dl-icon" title="Download to USB">
+                    <i class="fas fa-download"></i>
+                </a>
             </div>
 
             <div class="volume-box">
