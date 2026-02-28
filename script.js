@@ -1,117 +1,92 @@
 const CLIENT_ID = '56d30c95';
 const audioPlayer = document.getElementById('audioPlayer');
+const mainPlayer = document.getElementById('mainPlayer');
 const musicContainer = document.getElementById('musicContainer');
 const playPauseBtn = document.getElementById('playPauseBtn');
+const downloadBtn = document.getElementById('downloadBtn');
 const timeSlider = document.getElementById('timeSlider');
 
 let likedSongs = JSON.parse(localStorage.getItem('likedSongs')) || [];
-let currentView = 'explore';
 
-// 1. Initial Load
-window.onload = () => searchMusic('trending');
+window.onload = () => searchMusic('popular');
 
-// 2. API Logic
 async function searchMusic(query) {
-    if (currentView === 'liked') return;
-    musicContainer.innerHTML = '<div class="loader">Scanning Nebula...</div>';
+    musicContainer.innerHTML = '<div class="loader-text">📡 Signal found... Fetching beats...</div>';
     
-    const url = `https://api.jamendo.com/v3.0/tracks/?client_id=${CLIENT_ID}&format=jsonpretty&limit=24&search=${encodeURIComponent(query)}&include=musicinfo`;
+    // Using 'tags' search which is more reliable for general searches
+    const url = `https://api.jamendo.com/v3.0/tracks/?client_id=${CLIENT_ID}&format=jsonpretty&limit=18&order=popularity_total&search=${encodeURIComponent(query)}`;
 
     try {
         const response = await fetch(url);
         const data = await response.json();
+        
+        if (!data.results || data.results.length === 0) {
+            musicContainer.innerHTML = '<div class="loader-text">❌ No results found. Try "Lofi".</div>';
+            return;
+        }
         displayResults(data.results);
     } catch (e) {
-        musicContainer.innerHTML = '<div>Connection Error. Use USB mode?</div>';
+        musicContainer.innerHTML = '<div class="loader-text">⚠️ API Blocked. Use the "USB" button to play your own files!</div>';
     }
 }
 
-// 3. Display Logic
 function displayResults(songs) {
     musicContainer.innerHTML = '';
     songs.forEach(song => {
-        const isLiked = likedSongs.some(s => s.audio === (song.audio || song.preview));
         const card = document.createElement('div');
         card.className = 'song-card';
+        const img = song.album_image || 'https://via.placeholder.com/300/222/bc13fe?text=USB';
         
-        const imgUrl = song.album_image || 'https://via.placeholder.com/300/222/bc13fe?text=USB+Track';
-        const streamUrl = song.audio || song.preview;
-
         card.innerHTML = `
-            <i class="fas fa-heart like-icon ${isLiked ? 'liked' : ''}"></i>
-            <img src="${imgUrl}" alt="cover">
+            <img src="${img}" alt="cover">
             <h4>${song.name}</h4>
             <p>${song.artist_name}</p>
         `;
-
-        card.querySelector('img').onclick = () => playSong(song);
-        card.querySelector('.like-icon').onclick = (e) => toggleLike(song, e.target);
-        
+        card.onclick = () => playSong(song);
         musicContainer.appendChild(card);
     });
 }
 
-// 4. USB / File Upload
-document.getElementById('fileUpload').onchange = (e) => {
-    const files = Array.from(e.target.files);
-    const localTracks = files.map(file => ({
-        name: file.name.replace(/\.[^/.]+$/, ""),
-        artist_name: "Local USB File",
-        audio: URL.createObjectURL(file),
-        album_image: "https://via.placeholder.com/300/222/bc13fe?text=USB"
-    }));
-    displayResults(localTracks);
-};
-
-// 5. Like System
-function toggleLike(song, el) {
-    const streamUrl = song.audio || song.preview;
-    const index = likedSongs.findIndex(s => s.audio === streamUrl);
-    
-    if (index === -1) {
-        likedSongs.push({...song, audio: streamUrl});
-        el.classList.add('liked');
-    } else {
-        likedSongs.splice(index, 1);
-        el.classList.remove('liked');
-        if (currentView === 'liked') el.parentElement.remove();
-    }
-    localStorage.setItem('likedSongs', JSON.stringify(likedSongs));
-}
-
-function showSection(section) {
-    currentView = section;
-    document.getElementById('tab-explore').className = section === 'explore' ? 'active' : '';
-    document.getElementById('tab-liked').className = section === 'liked' ? 'active' : '';
-    
-    if (section === 'liked') {
-        displayResults(likedSongs);
-    } else {
-        searchMusic('trending');
-    }
-}
-
-// 6. Player Control
 function playSong(song) {
-    audioPlayer.src = song.audio || song.preview;
+    // Show the player
+    mainPlayer.classList.add('active');
+    
+    const streamUrl = song.audio || song.preview;
+    audioPlayer.src = streamUrl;
+    
+    // Update UI
     document.getElementById('trackArt').src = song.album_image || 'https://via.placeholder.com/300/222/bc13fe?text=USB';
     document.getElementById('trackTitle').innerText = song.name;
     document.getElementById('trackArtist').innerText = song.artist_name;
+    
+    // Setup Download
+    downloadBtn.href = streamUrl;
+    downloadBtn.setAttribute('download', `${song.name}.mp3`);
+
     audioPlayer.play();
     playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
 }
 
-playPauseBtn.onclick = () => {
-    if (audioPlayer.paused) { audioPlayer.play(); playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>'; }
-    else { audioPlayer.pause(); playPauseBtn.innerHTML = '<i class="fas fa-play"></i>'; }
+// USB / Local File logic
+document.getElementById('fileUpload').onchange = (e) => {
+    const files = Array.from(e.target.files);
+    const localTracks = files.map(file => ({
+        name: file.name.replace('.mp3', ''),
+        artist_name: "USB Drive",
+        audio: URL.createObjectURL(file),
+        album_image: ""
+    }));
+    displayResults(localTracks);
 };
 
-// 7. Time/Progress logic
+// Player Logic
 audioPlayer.ontimeupdate = () => {
-    const prog = (audioPlayer.currentTime / audioPlayer.duration) * 100;
-    timeSlider.value = prog || 0;
-    document.getElementById('currentTime').innerText = formatTime(audioPlayer.currentTime);
-    document.getElementById('durationTime').innerText = formatTime(audioPlayer.duration || 0);
+    if(audioPlayer.duration) {
+        const prog = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+        timeSlider.value = prog;
+        document.getElementById('currentTime').innerText = formatTime(audioPlayer.currentTime);
+        document.getElementById('durationTime').innerText = formatTime(audioPlayer.duration);
+    }
 };
 
 timeSlider.oninput = () => audioPlayer.currentTime = (timeSlider.value / 100) * audioPlayer.duration;
@@ -121,6 +96,11 @@ function formatTime(s) {
     const sec = Math.floor(s % 60);
     return `${m}:${sec < 10 ? '0'+sec : sec}`;
 }
+
+playPauseBtn.onclick = () => {
+    if (audioPlayer.paused) { audioPlayer.play(); playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>'; }
+    else { audioPlayer.pause(); playPauseBtn.innerHTML = '<i class="fas fa-play"></i>'; }
+};
 
 document.getElementById('searchBtn').onclick = () => searchMusic(document.getElementById('searchInput').value);
 document.getElementById('volumeSlider').oninput = (e) => audioPlayer.volume = e.target.value;
