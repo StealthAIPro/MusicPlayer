@@ -113,3 +113,44 @@ button#searchBtn {
     cursor: pointer;
     box-shadow: 0 0 15px var(--neon-purple);
 }
+
+/* Add this to your existing CSS */
+
+.track-info {
+    max-width: 200px;
+    overflow: hidden;
+}
+
+#trackTitle {
+    font-weight: bold;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--neon-purple);
+}
+
+#trackArtist {
+    font-size: 0.85rem;
+    color: #888;
+}
+
+/* Make the search bar glow when you click it */
+input[type="text"]:focus {
+    border-color: var(--neon-purple);
+    box-shadow: 0 0 10px rgba(188, 19, 254, 0.5);
+}
+
+/* Custom Scrollbar for the music grid */
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    background: #050505;
+}
+::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--neon-purple);
+}
