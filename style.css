@@ -1,79 +1,100 @@
 :root {
-    --bg: #080808;
-    --panel: #121212;
+    --bg: #0a0a0a;
+    --panel: #161616;
     --purple: #bc13fe;
-    --purple-glow: rgba(188, 19, 254, 0.4);
     --text: #ffffff;
 }
 
 body {
     background-color: var(--bg);
     color: var(--text);
-    font-family: 'Segoe UI', sans-serif;
+    font-family: 'Inter', sans-serif;
     margin: 0;
-    overflow-x: hidden;
+    padding: 0;
 }
 
 header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px 5%;
+    padding: 15px 5%;
     background: #000;
     border-bottom: 1px solid #222;
 }
 
-.logo { font-size: 1.5rem; font-weight: 800; }
 .logo span { color: var(--purple); text-shadow: 0 0 10px var(--purple); }
-
-.usb-btn { background: #222; border: 1px solid var(--purple); color: white; padding: 10px 15px; border-radius: 5px; cursor: pointer; }
 
 #musicContainer {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 25px;
-    padding: 20px 5% 150px;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+    padding: 30px 5% 150px; /* Extra bottom padding so songs aren't hidden by player */
 }
 
 .song-card {
     background: var(--panel);
     padding: 15px;
-    border-radius: 12px;
+    border-radius: 10px;
     border: 1px solid #222;
-    text-align: center;
+    cursor: pointer;
     transition: 0.3s;
 }
-.song-card:hover { border-color: var(--purple); transform: scale(1.03); }
-.song-card img { width: 100%; border-radius: 8px; cursor: pointer; }
 
-/* Hidden state for the player */
+.song-card:hover { border-color: var(--purple); transform: translateY(-5px); }
+.song-card img { width: 100%; border-radius: 5px; margin-bottom: 10px; }
+
+/* Fixed Player Logic */
 .player {
     position: fixed;
-    bottom: -150px; /* Hidden below screen */
+    bottom: -150px; /* Start off-screen */
+    left: 0;
     width: 100%;
     background: rgba(0,0,0,0.95);
-    backdrop-filter: blur(10px);
     border-top: 2px solid var(--purple);
     padding: 15px 0;
-    transition: bottom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition: bottom 0.4s ease-in-out;
+    z-index: 999;
 }
 
-.player.active {
-    bottom: 0; /* Slide up when active */
+.player.active { bottom: 0; }
+
+.progress-area {
+    display: flex;
+    align-items: center;
+    width: 90%;
+    margin: 0 auto 10px;
+    gap: 10px;
 }
 
-.controls-container { display: flex; justify-content: space-between; align-items: center; padding: 0 5%; }
-.track-details { display: flex; align-items: center; gap: 15px; width: 30%; }
-.track-details img { width: 50px; height: 50px; border-radius: 5px; background: #222; }
-
-.main-controls { display: flex; align-items: center; gap: 20px; }
-#playPauseBtn {
-    background: var(--purple); border: none; width: 50px; height: 50px;
-    border-radius: 50%; color: white; cursor: pointer; font-size: 1.2rem;
-}
-
-.dl-icon { color: #888; font-size: 1.2rem; text-decoration: none; transition: 0.3s; }
-.dl-icon:hover { color: var(--purple); }
-
-.progress-area { display: flex; align-items: center; gap: 10px; width: 90%; margin: 0 auto 10px; }
 #timeSlider { flex: 1; accent-color: var(--purple); }
+
+.controls-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 5%;
+}
+
+.track-details { display: flex; align-items: center; gap: 15px; width: 30%; }
+.track-details img { width: 50px; height: 50px; border-radius: 5px; object-fit: cover; }
+
+.main-controls { display: flex; align-items: center; gap: 15px; }
+.main-controls button {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+#playPauseBtn {
+    background: var(--purple);
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+}
+
+button.toggle-active { color: var(--purple); text-shadow: 0 0 8px var(--purple); }
+
+.volume-box { display: flex; align-items: center; gap: 10px; width: 20%; justify-content: flex-end; }
