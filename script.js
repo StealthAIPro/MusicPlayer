@@ -3,81 +3,82 @@ const searchBtn = document.getElementById('searchBtn');
 const musicContainer = document.getElementById('musicContainer');
 const audioPlayer = document.getElementById('audioPlayer');
 const playPauseBtn = document.getElementById('playPauseBtn');
+const timeSlider = document.getElementById('timeSlider');
+const currentTimeLabel = document.getElementById('currentTime');
+const durationTimeLabel = document.getElementById('durationTime');
 
+// 1. Search Logic
 async function searchMusic(query) {
-    // 1. Clean up the search term (remove extra spaces)
-    const term = query.trim();
+    if (!query) return;
+    musicContainer.innerHTML = '<div class="loader-text">Loading full tracks...</div>';
     
-    if (!term) {
-        musicContainer.innerHTML = '<div class="loader-text">Please enter a song or artist name!</div>';
-        return;
-    }
-    
-    // 2. See what's happening in the background
-    console.log("Searching for:", term);
-    
-    musicContainer.innerHTML = '<div class="loader-text">🔍 Searching the airwaves...</div>';
-    
-    // 3. Use a slightly broader search URL
-    const url = `https://itunes.apple.com/search?term=${encodeURIComponent(term)}&limit=24&media=music`;
+    // Jamendo API URL (Public Client ID for testing)
+    const url = `https://api.jamendo.com/v3.0/tracks/?client_id=56d30c95&format=jsonpretty&limit=20&namesearch=${encodeURIComponent(query)}&include=musicinfo`;
 
     try {
         const response = await fetch(url);
         const data = await response.json();
         
-        console.log("API Response:", data); // Check if data actually came back
-
-        if (data.resultCount === 0) {
-            musicContainer.innerHTML = `<div class="loader-text">❌ No results for "${term}". Try searching something famous like "Dua Lipa".</div>`;
+        if (data.results.length === 0) {
+            musicContainer.innerHTML = '<div>No tracks found. Try "Lofi" or "Rock".</div>';
             return;
         }
-
         displayResults(data.results);
     } catch (error) {
-        console.error("Detailed Error:", error);
-        musicContainer.innerHTML = '<div class="loader-text">⚠️ Connection Error. Are you online?</div>';
+        musicContainer.innerHTML = '<div>Error connecting to music library.</div>';
     }
 }
 
 function displayResults(songs) {
-    musicContainer.innerHTML = ''; // Clear previous results
-    
+    musicContainer.innerHTML = '';
     songs.forEach(song => {
         const card = document.createElement('div');
         card.className = 'song-card';
-        // Using a higher resolution image from iTunes
-        const artwork = song.artworkUrl100.replace('100x100bb.jpg', '400x400bb.jpg');
-        
         card.innerHTML = `
-            <img src="${artwork}" alt="Cover">
-            <h4>${song.trackName}</h4>
-            <p>${song.artistName}</p>
+            <img src="${song.album_image || 'https://via.placeholder.com/200'}" alt="Cover">
+            <h4>${song.name}</h4>
+            <p>${song.artist_name}</p>
         `;
-        
         card.onclick = () => playSong(song);
         musicContainer.appendChild(card);
     });
 }
 
 function playSong(song) {
-    audioPlayer.src = song.previewUrl;
-    document.getElementById('trackArt').src = song.artworkUrl100;
-    document.getElementById('trackTitle').innerText = song.trackName;
-    document.getElementById('trackArtist').innerText = song.artistName;
+    audioPlayer.src = song.audio; // Full song URL
+    document.getElementById('trackArt').src = song.album_image;
+    document.getElementById('trackTitle').innerText = song.name;
+    document.getElementById('trackArtist').innerText = song.artist_name;
     
     audioPlayer.play();
     playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
 }
 
-// Event Listeners
-searchBtn.addEventListener('click', () => searchMusic(searchInput.value));
-
-searchInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-        searchMusic(searchInput.value);
+// 2. Time Slider & Progress Logic
+audioPlayer.addEventListener('timeupdate', () => {
+    if (audioPlayer.duration) {
+        const progress = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+        timeSlider.value = progress;
+        
+        // Update Time Labels
+        currentTimeLabel.innerText = formatTime(audioPlayer.currentTime);
+        durationTimeLabel.innerText = formatTime(audioPlayer.duration);
     }
 });
 
+// Seeking (User clicks the slider)
+timeSlider.addEventListener('input', () => {
+    const seekTime = (timeSlider.value / 100) * audioPlayer.duration;
+    audioPlayer.currentTime = seekTime;
+});
+
+function formatTime(seconds) {
+    const min = Math.floor(seconds / 60);
+    const sec = Math.floor(seconds % 60);
+    return `${min}:${sec < 10 ? '0' + sec : sec}`;
+}
+
+// 3. Basic Controls
 playPauseBtn.onclick = () => {
     if (audioPlayer.paused) {
         audioPlayer.play();
@@ -87,3 +88,10 @@ playPauseBtn.onclick = () => {
         playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
     }
 };
+
+document.getElementById('volumeSlider').oninput = (e) => {
+    audioPlayer.volume = e.target.value;
+};
+
+searchBtn.onclick = () => searchMusic(searchInput.value);
+searchInput.onkeypress = (e) => { if (e.key === 'Enter') searchMusic(searchInput.value); };
