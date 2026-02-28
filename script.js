@@ -5,31 +5,37 @@ const audioPlayer = document.getElementById('audioPlayer');
 const playPauseBtn = document.getElementById('playPauseBtn');
 
 async function searchMusic(query) {
-    if (!query) return;
+    // 1. Clean up the search term (remove extra spaces)
+    const term = query.trim();
     
-    // Show loading state
+    if (!term) {
+        musicContainer.innerHTML = '<div class="loader-text">Please enter a song or artist name!</div>';
+        return;
+    }
+    
+    // 2. See what's happening in the background
+    console.log("Searching for:", term);
+    
     musicContainer.innerHTML = '<div class="loader-text">🔍 Searching the airwaves...</div>';
     
-    // Encode the query (handles spaces like "Taylor Swift")
-    const encodedQuery = encodeURIComponent(query);
-    const url = `https://itunes.apple.com/search?term=${encodedQuery}&entity=song&limit=20`;
+    // 3. Use a slightly broader search URL
+    const url = `https://itunes.apple.com/search?term=${encodeURIComponent(term)}&limit=24&media=music`;
 
     try {
         const response = await fetch(url);
-        
-        if (!response.ok) throw new Error('Network response was not ok');
-        
         const data = await response.json();
         
+        console.log("API Response:", data); // Check if data actually came back
+
         if (data.resultCount === 0) {
-            musicContainer.innerHTML = '<div class="loader-text">❌ No songs found. Try another search!</div>';
+            musicContainer.innerHTML = `<div class="loader-text">❌ No results for "${term}". Try searching something famous like "Dua Lipa".</div>`;
             return;
         }
 
         displayResults(data.results);
     } catch (error) {
-        console.error("Search Error:", error);
-        musicContainer.innerHTML = `<div class="loader-text">⚠️ Error: ${error.message}. Check your internet connection.</div>`;
+        console.error("Detailed Error:", error);
+        musicContainer.innerHTML = '<div class="loader-text">⚠️ Connection Error. Are you online?</div>';
     }
 }
 
