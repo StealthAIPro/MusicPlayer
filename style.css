@@ -1,156 +1,107 @@
-/* Replace your style.css with this */
 :root {
-    --bg-black: #050505;
-    --panel-dark: #121212;
-    --neon-purple: #bc13fe;
-    --glow-purple: #d8b4fe;
+    --bg: #080808;
+    --panel: #121212;
+    --purple: #bc13fe;
+    --purple-glow: rgba(188, 19, 254, 0.4);
+    --text: #ffffff;
 }
 
 body {
-    background-color: var(--bg-black);
-    color: white;
-    font-family: 'Inter', sans-serif;
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', Roboto, sans-serif;
     margin: 0;
-    overflow-x: hidden;
+    padding-bottom: 120px;
 }
 
-/* Header & Search */
 header {
-    padding: 20px 5%;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: 20px 5%;
+    background: #000;
     border-bottom: 1px solid #222;
 }
 
-.logo span { color: var(--neon-purple); text-shadow: 0 0 10px var(--neon-purple); }
+.logo { font-size: 1.5rem; font-weight: 800; letter-spacing: 1px; }
+.logo span { color: var(--purple); text-shadow: 0 0 10px var(--purple); }
 
+.search-box { display: flex; gap: 10px; align-items: center; }
 input[type="text"] {
     background: #1a1a1a;
     border: 1px solid #333;
     color: white;
-    padding: 10px 20px;
-    border-radius: 5px;
+    padding: 10px 15px;
+    border-radius: 4px;
     outline: none;
 }
+input[type="text"]:focus { border-color: var(--purple); }
 
-button#searchBtn {
-    background: var(--neon-purple);
+button#searchBtn, .usb-btn {
+    background: var(--purple);
     color: white;
     border: none;
-    padding: 10px 20px;
+    padding: 10px 18px;
+    border-radius: 4px;
     cursor: pointer;
-    border-radius: 5px;
+    font-weight: bold;
+    transition: 0.3s;
 }
 
-/* Music Grid */
+.tabs { padding: 20px 5%; display: flex; gap: 20px; }
+.tabs button {
+    background: none; border: none; color: #888; 
+    font-size: 1rem; cursor: pointer; padding: 5px 0;
+}
+.tabs button.active { color: var(--purple); border-bottom: 2px solid var(--purple); }
+
 #musicContainer {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 20px;
-    padding: 40px 5%;
-    padding-bottom: 150px;
-}
-
-.song-card {
-    background: var(--panel-dark);
-    padding: 15px;
-    border-radius: 10px;
-    transition: 0.3s;
-    border: 1px solid #222;
-}
-
-.song-card:hover {
-    border-color: var(--neon-purple);
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(188, 19, 254, 0.2);
-}
-
-.song-card img { width: 100%; border-radius: 5px; }
-
-/* Fixed Player */
-.player {
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    background: #000;
-    padding: 10px 0;
-    border-top: 1px solid var(--neon-purple);
-}
-
-.progress-container {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    width: 90%;
-    margin: 0 auto 10px;
-    font-size: 12px;
-}
-
-#timeSlider {
-    flex-grow: 1;
-    accent-color: var(--neon-purple);
-    cursor: pointer;
-}
-
-.player-main {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 25px;
     padding: 0 5%;
 }
 
-.current-track { display: flex; align-items: center; gap: 15px; width: 30%; }
-.current-track img { width: 50px; height: 50px; border-radius: 4px; }
+.song-card {
+    background: var(--panel);
+    padding: 15px;
+    border-radius: 8px;
+    transition: 0.3s;
+    border: 1px solid #222;
+    position: relative;
+}
+.song-card:hover { border-color: var(--purple); transform: translateY(-5px); }
+.song-card img { width: 100%; border-radius: 4px; cursor: pointer; }
+.song-card h4 { margin: 12px 0 4px; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.song-card p { color: #888; font-size: 0.8rem; margin: 0; }
+
+.like-icon {
+    position: absolute; top: 20px; right: 20px;
+    font-size: 1.2rem; color: rgba(255,255,255,0.3);
+    cursor: pointer; transition: 0.2s;
+}
+.like-icon.liked { color: #ff2e63; }
+
+/* Fixed Player */
+.player {
+    position: fixed; bottom: 0; width: 100%;
+    background: #000; border-top: 1px solid var(--purple);
+    padding: 10px 0;
+}
+.progress-area {
+    display: flex; align-items: center; gap: 10px;
+    width: 90%; margin: 0 auto 10px; font-size: 0.75rem;
+}
+#timeSlider { flex: 1; accent-color: var(--purple); cursor: pointer; }
+
+.controls-container { display: flex; justify-content: space-between; align-items: center; padding: 0 5%; }
+.track-details { display: flex; align-items: center; gap: 12px; width: 30%; }
+.track-details img { width: 45px; height: 45px; border-radius: 4px; }
+#trackTitle { font-size: 0.9rem; font-weight: bold; }
+#trackArtist { font-size: 0.75rem; color: #888; }
 
 #playPauseBtn {
-    background: var(--neon-purple);
-    border: none;
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    color: white;
-    cursor: pointer;
-    box-shadow: 0 0 15px var(--neon-purple);
-}
-
-/* Add this to your existing CSS */
-
-.track-info {
-    max-width: 200px;
-    overflow: hidden;
-}
-
-#trackTitle {
-    font-weight: bold;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    color: var(--neon-purple);
-}
-
-#trackArtist {
-    font-size: 0.85rem;
-    color: #888;
-}
-
-/* Make the search bar glow when you click it */
-input[type="text"]:focus {
-    border-color: var(--neon-purple);
-    box-shadow: 0 0 10px rgba(188, 19, 254, 0.5);
-}
-
-/* Custom Scrollbar for the music grid */
-::-webkit-scrollbar {
-    width: 8px;
-}
-::-webkit-scrollbar-track {
-    background: #050505;
-}
-::-webkit-scrollbar-thumb {
-    background: #333;
-    border-radius: 10px;
-}
-::-webkit-scrollbar-thumb:hover {
-    background: var(--neon-purple);
+    background: var(--purple); border: none; width: 50px; height: 50px;
+    border-radius: 50%; color: white; cursor: pointer; font-size: 1.2rem;
+    box-shadow: 0 0 15px var(--purple-glow);
 }
