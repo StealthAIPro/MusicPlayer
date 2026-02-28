@@ -1,0 +1,111 @@
+:root {
+    --bg-dark: #0a0a0a;
+    --card-bg: #1a1a1a;
+    --accent-purple: #a855f7;
+    --text-white: #f3f4f6;
+    --text-gray: #9ca3af;
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-white);
+    font-family: 'Segoe UI', sans-serif;
+    margin: 0;
+    padding-bottom: 100px; /* Space for fixed player */
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 5%;
+    background: rgba(0,0,0,0.8);
+    backdrop-filter: blur(10px);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.logo { font-size: 1.5rem; font-weight: bold; letter-spacing: 2px; }
+.logo span { color: var(--accent-purple); }
+
+.search-box { display: flex; gap: 10px; }
+input {
+    background: #222;
+    border: 1px solid #333;
+    padding: 10px 15px;
+    border-radius: 20px;
+    color: white;
+    width: 250px;
+}
+
+button#searchBtn {
+    background: var(--accent-purple);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 20px;
+    color: white;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+#musicContainer {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 25px;
+    padding: 40px 5%;
+}
+
+.song-card {
+    background: var(--card-bg);
+    padding: 15px;
+    border-radius: 12px;
+    text-align: center;
+    transition: transform 0.3s, border 0.3s;
+    border: 1px solid transparent;
+    cursor: pointer;
+}
+
+.song-card:hover {
+    transform: translateY(-5px);
+    border: 1px solid var(--accent-purple);
+    box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
+}
+
+.song-card img {
+    width: 100%;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+.song-card h4 { margin: 10px 0 5px; font-size: 1rem; }
+.song-card p { color: var(--text-gray); font-size: 0.8rem; }
+
+/* Fixed Footer Player */
+.player {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    height: 80px;
+    background: #111;
+    border-top: 2px solid var(--accent-purple);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 5%;
+    box-sizing: border-box;
+}
+
+.current-track { display: flex; align-items: center; gap: 15px; width: 30%; }
+.current-track img { width: 50px; height: 50px; border-radius: 5px; }
+
+#playPauseBtn {
+    background: var(--accent-purple);
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: none;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
