@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Purple Pulse | Music Player</title>
+    <title>Purple Pulse</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -12,25 +12,18 @@
     <header>
         <div class="logo">PURPLE<span>PULSE</span></div>
         <div class="search-box">
-            <input type="text" id="searchInput" placeholder="Try 'Lofi' or 'Rock'...">
+            <input type="text" id="searchInput" placeholder="Search artists...">
             <button id="searchBtn"><i class="fas fa-search"></i></button>
-            <label for="fileUpload" class="usb-btn">
-                <i class="fas fa-usb"></i> USB
-            </label>
+            <label for="fileUpload" class="usb-btn"><i class="fas fa-usb"></i> USB</label>
             <input type="file" id="fileUpload" accept="audio/*" multiple style="display:none;">
         </div>
     </header>
 
-    <nav class="tabs">
-        <button id="tab-explore" class="active" onclick="showSection('explore')">Explore</button>
-        <button id="tab-liked" onclick="showSection('liked')">❤️ Liked</button>
-    </nav>
-
     <main id="musicContainer">
-        <div class="loader-text">Loading the nebula...</div>
+        <div class="loader-text">Search for music or upload from USB to begin.</div>
     </main>
 
-    <footer class="player hidden" id="mainPlayer">
+    <footer class="player" id="mainPlayer">
         <div class="progress-area">
             <span id="currentTime">0:00</span>
             <input type="range" id="timeSlider" value="0" min="0" max="100">
@@ -47,11 +40,10 @@
             </div>
 
             <div class="main-controls">
-                <audio id="audioPlayer"></audio>
+                <button id="shuffleBtn" title="Shuffle"><i class="fas fa-random"></i></button>
                 <button id="playPauseBtn"><i class="fas fa-play"></i></button>
-                <a id="downloadBtn" href="#" download class="dl-icon" title="Download to USB">
-                    <i class="fas fa-download"></i>
-                </a>
+                <button id="repeatBtn" title="Repeat"><i class="fas fa-redo"></i></button>
+                <a id="downloadBtn" href="#" download class="dl-icon"><i class="fas fa-download"></i></a>
             </div>
 
             <div class="volume-box">
@@ -61,6 +53,7 @@
         </div>
     </footer>
 
+    <audio id="audioPlayer"></audio>
     <script src="script.js"></script>
 </body>
 </html>
